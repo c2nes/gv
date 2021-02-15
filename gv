@@ -156,26 +156,26 @@ go_install() {
 }
 
 set_goversion() {
-    V="$1"
+    N="$1"
 
-    if ! [ -d "$SDK_HOME/$V" ]; then
-        go_install "$V"
+    if ! [ -d "$SDK_HOME/$N" ]; then
+        go_install "$N"
     fi
 
-    echo "$V" > .goversion
+    echo "$N" > .goversion
 }
 
 set_system_goversion() {
-    V="$1"
+    N="$1"
 
-    if ! [ -d "$SDK_HOME/$V" ]; then
-        go_install "$V"
+    if ! [ -d "$SDK_HOME/$N" ]; then
+        go_install "$N"
     fi
 
     (
         cd "$SDK_HOME"
         rm -f system
-        ln -s "$V" system
+        ln -s "$N" system
     )
 }
 
