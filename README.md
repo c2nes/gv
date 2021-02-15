@@ -115,6 +115,7 @@ go version go1.15.3 linux/amd64
 ```shellsession
 $ gv -h
 usage: gv [-uUisSh]
+   or: gv -c cmd [arguments]
    or: go|gv <command> [arguments]
    or: gofmt [flags] [path ...]
 
@@ -130,6 +131,8 @@ gv is a Go version manager and wrapper
         Set (and install) the Go version for the current directory (i.e. update .goversion)
   -S version
         Set (and install) the system Go version (i.e. update ~/sdk/system symlink)
+  -c cmd
+        Run the given command instead of delegating based on $0
   -h
         Show this usage information
 ```
