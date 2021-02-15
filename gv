@@ -182,6 +182,7 @@ set_system_goversion() {
 gv_usage() {
     cat <<'EOF'
 usage: gv [-uUisSh]
+   or: gv -c cmd [arguments]
    or: go|gv <command> [arguments]
    or: gofmt [flags] [path ...]
 
@@ -197,6 +198,8 @@ gv is a Go version manager and wrapper
         Set (and install) the Go version for the current directory (i.e. update .goversion)
   -S version
         Set (and install) the system Go version (i.e. update ~/sdk/system symlink)
+  -c cmd
+        Run the given command instead of delegating based on $0
   -h
         Show this usage information
 EOF
@@ -238,6 +241,11 @@ case "$EXEC_NAME" in
             -S)
                 set_system_goversion "$2"
                 exit
+                ;;
+
+            -c)
+                CMD="$2"
+                shift 2
                 ;;
 
             -h)
@@ -291,7 +299,7 @@ esac
 
 # Execute a command matching the name we were called as (go/gofmt/etc) unless
 # that name is 'gv' in which case we delegate to 'go' instead.
-CMD="$EXEC_NAME"
+CMD="${CMD:-$EXEC_NAME}"
 if [ "$CMD" = "gv" ]; then
     CMD="go"
 fi
