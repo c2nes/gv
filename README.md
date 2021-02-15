@@ -69,8 +69,6 @@ go version go1.16rc1 linux/amd64
 ## Set project/directory version
 
 ``` shellsession
-$ go version
-go version go1.15.8 linux/amd64
 $ gv -s unstable
 $ go version
 go version go1.16rc1 linux/amd64
@@ -84,22 +82,30 @@ go version go1.14 linux/amd64
 ## Set system version
 
 ``` shellsession
-$ go version
-go version go1.15.8 linux/amd64
 $ gv -S unstable
 $ go version
 go version go1.16rc1 linux/amd64
 $ readlink ~/sdk/system
 unstable
+$ gv -s go1.14
+$ readlink ~/sdk/system
+go1.14
 ```
 
-## Use a version specific wrapper
+## Install a specific version
 
 ``` shellsession
 $ gv -i go1.15.3
 Downloading go1.15.3.linux-amd64.tar.gz ...
 ################################################################ 100.0%
 Unpacking go1.15.3.linux-amd64.tar.gz ...
+$ ~/sdk/go1.15.3/bin/go version
+go version go1.15.3 linux/amd64
+```
+
+## Use a version-specific wrapper
+
+``` shellsession
 $ go1.15.3 version
 go version go1.15.3 linux/amd64
 ```
