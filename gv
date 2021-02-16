@@ -33,7 +33,7 @@ go_platform_pair() {
             ;;
 
         *)
-            echo "error: unsupported kernel $kernel_name" >&2
+            echo "(gv) error: unsupported kernel $kernel_name" >&2
             exit 1
             ;;
     esac
@@ -57,7 +57,7 @@ go_platform_pair() {
             ;;
 
         *)
-            echo "error: unsupported machine $machine" >&2
+            echo "(gv) error: unsupported machine $machine" >&2
             exit 1
             ;;
     esac
@@ -76,6 +76,10 @@ go_install() {
 
         unstable)
             V=$(go_unstable)
+            if [ -z "$V" ]; then
+                echo "(gv) error: No unstable release available to install" >&2
+                exit 1
+            fi
             ;;
 
         *)
