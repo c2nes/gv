@@ -2,6 +2,16 @@
 
 set -eu
 
+errmsg() {
+    printf 'error (gv): %s\n' "$*" >&2
+}
+
+infomsg() {
+    if [ -z "${QUIET-}" ]; then
+        printf 'info (gv): %s\n' "$*" >&2
+    fi
+}
+
 go_stable() {
     V=$(curl -sfL https://golang.org/dl/ | grep -o '/dl/go[^"]*\.tar\.gz' | sed -ne 1p)
     V=${V#/dl/}
@@ -33,7 +43,7 @@ go_platform_pair() {
             ;;
 
         *)
-            echo "(gv) error: unsupported kernel $kernel_name" >&2
+            errmsg "unsupported kernel $kernel_name"
             exit 1
             ;;
     esac
@@ -57,7 +67,7 @@ go_platform_pair() {
             ;;
 
         *)
-            echo "(gv) error: unsupported machine $machine" >&2
+            errmsg "unsupported machine $machine"
             exit 1
             ;;
     esac
@@ -77,7 +87,7 @@ go_install() {
         unstable)
             V=$(go_unstable)
             if [ -z "$V" ]; then
-                echo "(gv) error: No unstable release available to install" >&2
+                errmsg "no unstable release available to install"
                 exit 1
             fi
             ;;
@@ -115,6 +125,33 @@ go_install() {
             ARCHIVE_NAME="${V}.$(go_platform_pair).tar.gz"
             ARCHIVE_URL="https://golang.org/dl/$ARCHIVE_NAME"
 
+            # Check that the version exists first so we can surface a friendly error message.
+            STATUS_CODE="$(curl -o /dev/null --write-out '%{http_code}' -sIL "$ARCHIVE_URL")"
+            case "$STATUS_CODE" in
+                200)
+                    # Okay!
+                    ;;
+
+                404)
+                    case "$V" in
+                        go*)
+                            errmsg "no archive found for version $V on $(go_platform_pair)"
+                            ;;
+
+                        *)
+                            errmsg "no archive found for version $V on $(go_platform_pair)" \
+                                   "(did you mean go${V}?)"
+                            ;;
+                    esac
+                    exit 1
+                    ;;
+
+                *)
+                    # Not okay, but fall through and let the next curl call
+                    # surface an error message to the user.
+                    ;;
+            esac
+
             if [ -z "${QUIET-}" ]; then
                 CURL_PROGRESS='--progress-bar'
             else
@@ -123,10 +160,10 @@ go_install() {
 
             cd "$STAGING_DIR"
 
-            [ -z "${QUIET-}" ] && echo "Downloading ${ARCHIVE_NAME} ..." >&2
+            infomsg "Downloading ${ARCHIVE_NAME} ..."
             curl "$CURL_PROGRESS" -fLo "$ARCHIVE_NAME" "$ARCHIVE_URL"
 
-            [ -z "${QUIET-}" ] && echo "Unpacking ${ARCHIVE_NAME} ..." >&2
+            infomsg "Unpacking ${ARCHIVE_NAME} ..."
             tar -xzf "$ARCHIVE_NAME"
 
             # Emulate https://go.googlesource.com/dl/ by installing the version
@@ -146,6 +183,8 @@ go_install() {
             # Move to correct location
             mv "go" "../$V"
         )
+    else
+        infomsg "version \"$V\" already installed"
     fi
 
     # Update symlink for stable/unstable
