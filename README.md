@@ -183,6 +183,8 @@ gv is a Go version manager and wrapper
         Set (and install) the Go version for the current directory (i.e. update .goversion)
   -S version
         Set (and install) the system Go version (i.e. update ~/sdk/system symlink)
+  -l
+        List versions available to be installed
   -c cmd
         Run the given command instead of delegating based on $0
   -h

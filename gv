@@ -75,6 +75,18 @@ go_platform_pair() {
     echo "$os-$arch"
 }
 
+go_list_versions() {
+    PLATFORM_PAIR="$(go_platform_pair)"
+    curl -sfL https://golang.org/dl/ \
+        | sed -ne '/Stable/,$ p' \
+        | grep -o '/dl/go[^"]*\.'"$PLATFORM_PAIR"'\.tar\.gz' \
+        | sed -e 's_/dl/__' -e 's/\.'"$PLATFORM_PAIR"'\.tar\.gz//' \
+        | awk '{ split($0, V, "[^0-9]+");
+                 printf "%05d%05d%05d%05d\t%s\n", V[1], V[2], V[3], V[4], $0; }' \
+        | sort | uniq \
+        | cut -f2
+}
+
 go_install() {
     N="$1"
 
@@ -241,6 +253,8 @@ gv is a Go version manager and wrapper
         Set (and install) the Go version for the current directory (i.e. update .goversion)
   -S version
         Set (and install) the system Go version (i.e. update ~/sdk/system symlink)
+  -l
+        List versions available to be installed
   -c cmd
         Run the given command instead of delegating based on $0
   -h
@@ -283,6 +297,11 @@ case "$EXEC_NAME" in
 
             -S)
                 set_system_goversion "$2"
+                exit
+                ;;
+
+            -l)
+                go_list_versions
                 exit
                 ;;
 
